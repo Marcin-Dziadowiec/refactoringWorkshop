@@ -22,6 +22,20 @@ struct UnexpectedEventException : std::runtime_error
     UnexpectedEventException();
 };
 
+struct Segment
+{
+    int x;
+    int y;
+    int ttl;
+
+    bool operator==(Segment s);
+
+    Segment()=default;
+    Segment(int _x, int _y, int _ttl);
+
+    Segment generateNewHead(Direction m_currentDirection) const;
+};
+
 class Controller : public IEventHandler
 {
 public:
@@ -33,12 +47,7 @@ public:
     void receive(std::unique_ptr<Event> e) override;
 
 private:
-    struct Segment
-    {
-        int x;
-        int y;
-        int ttl;
-    };
+
 
     IPort& m_displayPort;
     IPort& m_foodPort;

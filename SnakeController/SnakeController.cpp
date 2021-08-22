@@ -8,6 +8,7 @@
 
 namespace Snake
 {
+
 ConfigurationError::ConfigurationError()
     : std::logic_error("Bad configuration of Snake::Controller.")
 {}
@@ -15,6 +16,25 @@ ConfigurationError::ConfigurationError()
 UnexpectedEventException::UnexpectedEventException()
     : std::runtime_error("Unexpected event received!")
 {}
+
+bool Segment::operator==(Segment s){
+    return (x==s.x && y==s.y)?true:false;
+}
+
+Segment::Segment(int _x, int _y, int _ttl)
+    : x(_x), y(_y), ttl(_ttl)
+{
+}
+
+Segment Segment::generateNewHead(Direction m_currentDirection) const{
+
+    return Segment(
+                x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0),
+                y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0),
+                ttl);
+
+}
+
 
 Controller::Controller(IPort& p_displayPort, IPort& p_foodPort, IPort& p_scorePort, std::string const& p_config)
     : m_displayPort(p_displayPort),
@@ -70,15 +90,12 @@ void Controller::receive(std::unique_ptr<Event> e)
 
         Segment const& currentHead = m_segments.front();
 
-        Segment newHead;
-        newHead.x = currentHead.x + ((m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.y = currentHead.y + (not (m_currentDirection & 0b01) ? (m_currentDirection & 0b10) ? 1 : -1 : 0);
-        newHead.ttl = currentHead.ttl;
+        Segment newHead=currentHead.generateNewHead(m_currentDirection);
 
         bool lost = false;
 
         for (auto segment : m_segments) {
-            if (segment.x == newHead.x and segment.y == newHead.y) {
+            if (segment == newHead) {
                 m_scorePort.send(std::make_unique<EventT<LooseInd>>());
                 lost = true;
                 break;
