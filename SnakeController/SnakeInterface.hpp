@@ -10,7 +10,8 @@ enum Direction
     Direction_UP    = 0b00,
     Direction_DOWN  = 0b10,
     Direction_LEFT  = 0b01,
-    Direction_RIGHT = 0b11
+    Direction_RIGHT = 0b11,
+    Direction_PAUSE = 0b111
 };
 
 struct DirectionInd
